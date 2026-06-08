@@ -14,8 +14,8 @@
      ============================================================ */
   /* Scheme A — "Purple" (default). Themes B and C below override these. */
   :root {
-    --paper:       #FFFFFF;   /* slide stage */
-    --surround:    #E7E7E7;   /* behind the stage */
+    --paper:       #F2F2F2;   /* slide stage — HB pale grey, makes white cards pop */
+    --surround:    #E0E0E0;   /* behind the stage */
     --ink:         #1a1a1a;   /* headlines + strong text */
     --ink-soft:    #5A5A5A;   /* body paragraphs */
     --ink-faint:   #a4a4a4;   /* meta, dots, counters */
@@ -28,6 +28,7 @@
 
     --card:        #FFFFFF;
     --card-border: #E3E3E3;
+    --card-shadow: 0 1px 2px rgba(20,22,40,.05), 0 10px 24px rgba(20,22,40,.07);
     --tint:        #E2FBFF;   /* concept-card surface */
     --chip:        #F0F0F0;   /* monospace file chips */
 
@@ -130,7 +131,27 @@
 
   /* Title slide */
   .title h1 { font-size: 78px; }
-  .title .intro { font-size: 26px; margin-top: 30px; max-width: 900px; }
+  .title .intro { font-size: 26px; margin-top: 30px; max-width: 860px; }
+
+  /* swipe affordance — title slide only (signals a swipable LinkedIn carousel) */
+  .swipe-hint {
+    position: absolute; top: 50%; right: 50px; transform: translateY(-50%);
+    display: flex; flex-direction: column; align-items: center; gap: 10px; z-index: 6;
+    cursor: pointer;
+  }
+  .swipe-circle {
+    width: 66px; height: 66px; border-radius: 50%;
+    background: var(--accent); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 8px 24px rgba(69,28,255,.32);
+    animation: nudge 1.4s ease-in-out infinite;
+  }
+  .swipe-circle svg { width: 30px; height: 30px; }
+  .swipe-label {
+    font-family: var(--font-body); font-weight: 600; font-size: 13px;
+    letter-spacing: .16em; text-transform: uppercase; color: var(--ink-soft);
+  }
+  @keyframes nudge { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(7px); } }
 
   /* Statement headline (layout B/C) */
   .head-lg h1 { font-size: 72px; }
@@ -146,6 +167,7 @@
     border: 1px solid var(--card-border);
     border-radius: 14px;
     padding: 26px 26px 28px;
+    box-shadow: var(--card-shadow);
   }
   .card.key { border-top: 5px solid var(--accent); }   /* purple accent on featured cards */
   .card .label {
@@ -162,6 +184,7 @@
     border: none; border-radius: 16px;
     padding: 26px 24px;
     display: flex; flex-direction: column; gap: 12px;
+    box-shadow: var(--card-shadow);
   }
   .concept .ic { width: 34px; height: 34px; color: var(--accent); }
   .concept h3 { font-family: var(--font-head); font-weight: 700; font-size: 21px; color: var(--ink); }
@@ -222,6 +245,7 @@
     .botbar { display: none; }
     .topbar, .siteurl { position: fixed; }   /* repeat brand chrome on every printed page */
     .dots { display: none; }
+    .swipe-circle { animation: none; box-shadow: none; }
   }
 </style>
 </head>
@@ -265,6 +289,12 @@
           <h3>Share</h3><p>A single file, or a link. Opens anywhere.</p>
         </div>
       </div>
+    </div>
+    <div class="swipe-hint" aria-hidden="true">
+      <span class="swipe-circle">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </span>
+      <span class="swipe-label">Swipe</span>
     </div>
   </section>
 
@@ -358,7 +388,7 @@
       <div class="numbers">
         <div class="num-row"><div class="num">01</div><div class="txt"><b>Outline first.</b> Agree the structure: titles and one line per slide. Edit it before any design exists.</div></div>
         <div class="num-row"><div class="num">02</div><div class="txt"><b>Build one slide.</b> Get a single template slide looking right. That sets the vocabulary for the rest.</div></div>
-        <div class="num-row"><div class="num">03</div><div class="txt"><b>Generate in batches.</b> Add the remaining slides against that template, a few at a time. Review, adjust, repeat.</div></div>
+        <div class="num-row"><div class="num">03</div><div class="txt"><b>Generate the content.</b> Use voice mode to give notes for each slide, or ask Claude to research it for you. Review, approve, build.</div></div>
       </div>
     </div>
   </section>
@@ -450,6 +480,10 @@
     const s = Math.min(window.innerWidth / 1280, window.innerHeight / 720);
     deck.style.transform = `translate(-50%, -50%) scale(${s})`;
   }
+  // tapping the swipe arrow on the title slide advances the deck
+  const swipe = document.querySelector('.swipe-hint');
+  if (swipe) swipe.addEventListener('click', () => show(i + 1));
+
   window.addEventListener('resize', scale);
   scale();
 </script>
